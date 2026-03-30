@@ -8,14 +8,14 @@
     <style>
         :root { --pink: #F06292; --soft-pink: #FFF5F7; --dark: #5D4037; }
         body { background-color: var(--soft-pink); font-family: sans-serif; color: var(--dark); margin: 0; padding: 15px; display: flex; justify-content: center; }
-        .app { width: 100%; max-width: 450px; background: white; border-radius: 30px; padding: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
-        h1 { color: var(--pink); text-align: center; letter-spacing: 3px; font-weight: 300; }
-        .lang-btn { float: right; background: var(--pink); color: white; border: none; padding: 5px 12px; border-radius: 20px; cursor: pointer; }
+        .app { width: 100%; max-width: 450px; background: white; border-radius: 30px; padding: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); min-height: 90vh; }
+        h1 { color: var(--pink); text-align: center; letter-spacing: 3px; font-weight: 300; margin-top: 10px; }
+        .lang-btn { float: right; background: var(--pink); color: white; border: none; padding: 8px 15px; border-radius: 20px; cursor: pointer; font-weight: bold; }
         .card { background: #fff; border: 1px solid #FCE4EC; border-radius: 20px; padding: 20px; margin-top: 15px; }
         label { display: block; margin-top: 15px; font-weight: bold; font-size: 0.9em; }
-        input, select { width: 100%; padding: 12px; margin-top: 5px; border-radius: 12px; border: 1px solid #F8BBD0; box-sizing: border-box; background: var(--soft-pink); }
-        .badge { background: #AD1457; color: white; padding: 4px 10px; border-radius: 10px; font-size: 0.85em; display: inline-block; margin-top: 5px; }
-        .status-box { margin-top: 10px; padding: 10px; border-radius: 10px; text-align: center; font-weight: bold; border: 1px solid #F06292; }
+        input, select { width: 100%; padding: 12px; margin-top: 5px; border-radius: 12px; border: 1px solid #F8BBD0; box-sizing: border-box; background: var(--soft-pink); font-size: 16px; }
+        .status-box { margin-top: 15px; padding: 15px; border-radius: 15px; text-align: center; font-weight: bold; color: white; text-shadow: 1px 1px 2px rgba(0,0,0,0.2); }
+        #saveBtn { width: 100%; padding: 15px; background: var(--pink); color: white; border: none; border-radius: 15px; font-weight: bold; margin-top: 20px; cursor: pointer; font-size: 1.1em; }
     </style>
 </head>
 <body>
@@ -32,14 +32,14 @@
         <input type="date" id="dob" onchange="runAI()">
 
         <div style="margin-top:10px;">
-            <span id="lbl-age">Age</span>: <span id="ageVal">--</span>
+            <span id="lbl-age">Age</span>: <span id="ageVal" style="font-weight:bold; color:var(--pink);">--</span>
         </div>
 
         <label id="lbl-height">Height (cm)</label>
-        <input type="number" id="height" oninput="runAI()">
+        <input type="number" id="height" placeholder="e.g. 160" oninput="runAI()">
 
         <label id="lbl-weight">Weight (kg)</label>
-        <input type="number" id="weight" oninput="runAI()">
+        <input type="number" id="weight" placeholder="e.g. 55" oninput="runAI()">
 
         <div id="statusResult" class="status-box" style="display:none;"></div>
     </div>
@@ -58,12 +58,12 @@
         <label id="lbl-subgoal">Focus Area</label>
         <select id="subGoal"></select>
     </div>
-    <button id="saveBtn" onclick="saveProfile()" style="width:100%; padding:15px; background: #F06292; color:white; border:none; border-radius:15px; font-weight:bold; margin-top:20px; cursor:pointer;">
-    Save Profile
-</button>
+
+    <button id="saveBtn" onclick="saveProfile()">Save Profile</button>
 </div>
 
-let currentLang = 'en';
+<script>
+    let currentLang = 'en';
     const goals = {
         hormonal: ["Cycle Syncing", "Perimenopause", "Fertility", "PCOS"],
         weight: ["Fat Loss", "Muscle Gain", "Body Recomp", "Metabolic Flex"],
@@ -73,11 +73,11 @@ let currentLang = 'en';
     };
 
     const translations = {
-        en: { title: "RINI", name: "Name", dob: "Date of Birth", age: "Age", h: "Height (cm)", w: "Weight (kg)", goal: "Primary Goal", sub: "Focus Area", btn: "हिन्दी", save: "Save Profile" },
-        hi: { title: "रिनी", name: "नाम", dob: "जन्म तिथि", age: "आयु", h: "लंबाई (cm)", w: "वजन (kg)", goal: "मुख्य लक्ष्य", sub: "विशेष क्षेत्र", btn: "English", save: "प्रोफ़ाइल सहेजें" }
+        en: { title: "RINI", name: "Name", dob: "Date of Birth", age: "Age", h: "Height (cm)", w: "Weight (kg)", goal: "Primary Goal", sub: "Focus Area", btn: "हिन्दी", save: "Save Profile", saved: "Profile Saved!" },
+        hi: { title: "रिनी", name: "नाम", dob: "जन्म तिथि", age: "आयु", h: "लंबाई (cm)", w: "वजन (kg)", goal: "मुख्य लक्ष्य", sub: "विशेष क्षेत्र", btn: "English", save: "प्रोफ़ाइल सहेजें", saved: "प्रोफ़ाइल सुरक्षित की गई!" }
     };
 
-    // 1. LOAD DATA ON STARTUP
+    // Load data when the page opens
     window.onload = function() {
         const savedData = JSON.parse(localStorage.getItem('riniProfile'));
         if (savedData) {
@@ -86,13 +86,13 @@ let currentLang = 'en';
             document.getElementById('height').value = savedData.height || '';
             document.getElementById('weight').value = savedData.weight || '';
             document.getElementById('mainGoal').value = savedData.mainGoal || '';
-            updateSubGoals(); // Fill the second dropdown
+            updateSubGoals();
             document.getElementById('subGoal').value = savedData.subGoal || '';
-            runAI(); // Recalculate Age/BMI
+            runAI();
         }
+        if('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js'); }
     };
 
-    // 2. SAVE DATA FUNCTION
     function saveProfile() {
         const profile = {
             name: document.getElementById('userName').value,
@@ -103,7 +103,7 @@ let currentLang = 'en';
             subGoal: document.getElementById('subGoal').value
         };
         localStorage.setItem('riniProfile', JSON.stringify(profile));
-        alert(currentLang === 'en' ? "Profile Saved!" : "प्रोफ़ाइल सुरक्षित की गई!");
+        alert(translations[currentLang].saved);
     }
 
     function toggleLang() {
@@ -138,7 +138,7 @@ let currentLang = 'en';
         const dob = document.getElementById('dob').value;
         if(dob) {
             const age = Math.floor((new Date() - new Date(dob)) / 31557600000);
-            document.getElementById('ageVal').innerText = age;
+            document.getElementById('ageVal').innerText = isNaN(age) ? "--" : age;
         }
 
         const h = document.getElementById('height').value / 100;
@@ -160,9 +160,6 @@ let currentLang = 'en';
             resDiv.innerHTML = `BMI: ${bmi} <br> ${status}`;
         }
     }
-
-<script>
-    if('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js'); }
 </script>
 
 </body>
