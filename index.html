@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rini - Women's Health & Fitness</title>
+    <style>
+        /* Luxurious Soft Pink Theme */
+        body {
+            background-color: #FFF5F7;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #5D4037;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+        }
+        .app-container {
+            width: 100%;
+            max-width: 400px;
+            background: white;
+            min-height: 100vh;
+            padding: 20px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.05);
+        }
+        .header { text-align: center; padding: 20px; }
+        .header h1 { color: #F06292; font-weight: 300; letter-spacing: 2px; }
+        .card {
+            background: #fff;
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 20px;
+            border: 1px solid #FCE4EC;
+        }
+        input, select {
+            width: 100%;
+            padding: 12px;
+            margin: 8px 0;
+            border-radius: 8px;
+            border: 1px solid #F8BBD0;
+            box-sizing: border-box;
+        }
+        .result-badge {
+            background: #FCE4EC;
+            color: #AD1457;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+    </style>
+    <link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#F06292">
+</head>
+<body>
+
+<div class="app-container">
+    <div class="header">
+        <h1>RINI</h1>
+        <p>Your Health, Your Rhythm</p>
+    </div>
+
+    <div class="card">
+        <h3>User Profile</h3>
+        <label>Name / नाम</label>
+        <input type="text" id="userName" placeholder="Enter your name">
+        
+        <label>Date of Birth / जन्म तिथि</label>
+        <input type="date" id="dob" onchange="calculateHealth()">
+
+        <p>Age: <span id="displayAge" class="result-badge">0</span></p>
+
+        <label>Height (cm) / लंबाई</label>
+        <input type="number" id="height" placeholder="e.g. 165" oninput="calculateHealth()">
+
+        <label>Weight (kg) / वजन</label>
+        <input type="number" id="weight" placeholder="e.g. 60" oninput="calculateHealth()">
+
+        <p>BMI: <span id="displayBMI" class="result-badge">0.0</span></p>
+    </div>
+
+    <div class="card">
+        <h3>Primary Goal / मुख्य लक्ष्य</h3>
+        <select id="mainGoal">
+            <option value="hormonal">Hormonal & Reproductive Health</option>
+            <option value="weight">Weight & Body Composition</option>
+            <option value="performance">Physical Performance & Strength</option>
+            <option value="longevity">Longevity & Structural Health</option>
+        </select>
+    </div>
+</div>
+
+<script>
+    function calculateHealth() {
+        // Age Calculation
+        const dobValue = document.getElementById('dob').value;
+        if(dobValue) {
+            const birthDate = new Date(dobValue);
+            const diff = Date.now() - birthDate.getTime();
+            const ageDate = new Date(diff);
+            document.getElementById('displayAge').innerText = Math.abs(ageDate.getUTCFullYear() - 1970);
+        }
+
+        // BMI Calculation
+        const h = document.getElementById('height').value / 100;
+        const w = document.getElementById('weight').value;
+        if(h > 0 && w > 0) {
+            const bmi = (w / (h * h)).toFixed(1);
+            document.getElementById('displayBMI').innerText = bmi;
+        }
+    }
+</script>
+<script>
+  if('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js')
+      .then(() => console.log("Rini is ready to work offline!"))
+      .catch((err) => console.log("Service worker not registered", err));
+  }
+</script>
+</body>
+</html>
