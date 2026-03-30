@@ -3,117 +3,138 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rini - Women's Health & Fitness</title>
-    <style>
-        /* Luxurious Soft Pink Theme */
-        body {
-            background-color: #FFF5F7;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            color: #5D4037;
-            margin: 0;
-            display: flex;
-            justify-content: center;
-        }
-        .app-container {
-            width: 100%;
-            max-width: 400px;
-            background: white;
-            min-height: 100vh;
-            padding: 20px;
-            box-shadow: 0 0 20px rgba(0,0,0,0.05);
-        }
-        .header { text-align: center; padding: 20px; }
-        .header h1 { color: #F06292; font-weight: 300; letter-spacing: 2px; }
-        .card {
-            background: #fff;
-            border-radius: 15px;
-            padding: 15px;
-            margin-bottom: 20px;
-            border: 1px solid #FCE4EC;
-        }
-        input, select {
-            width: 100%;
-            padding: 12px;
-            margin: 8px 0;
-            border-radius: 8px;
-            border: 1px solid #F8BBD0;
-            box-sizing: border-box;
-        }
-        .result-badge {
-            background: #FCE4EC;
-            color: #AD1457;
-            padding: 5px 10px;
-            border-radius: 5px;
-            font-weight: bold;
-        }
-    </style>
+    <title>Rini - Women's Health</title>
     <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#F06292">
+    <style>
+        :root { --pink: #F06292; --soft-pink: #FFF5F7; --dark: #5D4037; }
+        body { background-color: var(--soft-pink); font-family: sans-serif; color: var(--dark); margin: 0; padding: 15px; display: flex; justify-content: center; }
+        .app { width: 100%; max-width: 450px; background: white; border-radius: 30px; padding: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+        h1 { color: var(--pink); text-align: center; letter-spacing: 3px; font-weight: 300; }
+        .lang-btn { float: right; background: var(--pink); color: white; border: none; padding: 5px 12px; border-radius: 20px; cursor: pointer; }
+        .card { background: #fff; border: 1px solid #FCE4EC; border-radius: 20px; padding: 20px; margin-top: 15px; }
+        label { display: block; margin-top: 15px; font-weight: bold; font-size: 0.9em; }
+        input, select { width: 100%; padding: 12px; margin-top: 5px; border-radius: 12px; border: 1px solid #F8BBD0; box-sizing: border-box; background: var(--soft-pink); }
+        .badge { background: #AD1457; color: white; padding: 4px 10px; border-radius: 10px; font-size: 0.85em; display: inline-block; margin-top: 5px; }
+        .status-box { margin-top: 10px; padding: 10px; border-radius: 10px; text-align: center; font-weight: bold; border: 1px solid #F06292; }
+    </style>
 </head>
 <body>
 
-<div class="app-container">
-    <div class="header">
-        <h1>RINI</h1>
-        <p>Your Health, Your Rhythm</p>
+<div class="app">
+    <button class="lang-btn" onclick="toggleLang()" id="langBtn">हिन्दी</button>
+    <h1 id="title">RINI</h1>
+
+    <div class="card">
+        <label id="lbl-name">Name</label>
+        <input type="text" id="userName" placeholder="Enter Name">
+
+        <label id="lbl-dob">Date of Birth</label>
+        <input type="date" id="dob" onchange="runAI()">
+
+        <div style="margin-top:10px;">
+            <span id="lbl-age">Age</span>: <span id="ageVal">--</span>
+        </div>
+
+        <label id="lbl-height">Height (cm)</label>
+        <input type="number" id="height" oninput="runAI()">
+
+        <label id="lbl-weight">Weight (kg)</label>
+        <input type="number" id="weight" oninput="runAI()">
+
+        <div id="statusResult" class="status-box" style="display:none;"></div>
     </div>
 
     <div class="card">
-        <h3>User Profile</h3>
-        <label>Name / नाम</label>
-        <input type="text" id="userName" placeholder="Enter your name">
-        
-        <label>Date of Birth / जन्म तिथि</label>
-        <input type="date" id="dob" onchange="calculateHealth()">
-
-        <p>Age: <span id="displayAge" class="result-badge">0</span></p>
-
-        <label>Height (cm) / लंबाई</label>
-        <input type="number" id="height" placeholder="e.g. 165" oninput="calculateHealth()">
-
-        <label>Weight (kg) / वजन</label>
-        <input type="number" id="weight" placeholder="e.g. 60" oninput="calculateHealth()">
-
-        <p>BMI: <span id="displayBMI" class="result-badge">0.0</span></p>
-    </div>
-
-    <div class="card">
-        <h3>Primary Goal / मुख्य लक्ष्य</h3>
-        <select id="mainGoal">
-            <option value="hormonal">Hormonal & Reproductive Health</option>
+        <label id="lbl-goal">Primary Goal</label>
+        <select id="mainGoal" onchange="updateSubGoals()">
+            <option value="">-- Select --</option>
+            <option value="hormonal">Hormonal & Reproductive</option>
             <option value="weight">Weight & Body Composition</option>
-            <option value="performance">Physical Performance & Strength</option>
-            <option value="longevity">Longevity & Structural Health</option>
+            <option value="performance">Physical Performance</option>
+            <option value="longevity">Longevity & Health</option>
+            <option value="mental">Mental Wellness</option>
         </select>
+
+        <label id="lbl-subgoal">Focus Area</label>
+        <select id="subGoal"></select>
     </div>
 </div>
 
 <script>
-    function calculateHealth() {
-        // Age Calculation
-        const dobValue = document.getElementById('dob').value;
-        if(dobValue) {
-            const birthDate = new Date(dobValue);
-            const diff = Date.now() - birthDate.getTime();
-            const ageDate = new Date(diff);
-            document.getElementById('displayAge').innerText = Math.abs(ageDate.getUTCFullYear() - 1970);
+    let currentLang = 'en';
+    const goals = {
+        hormonal: ["Cycle Syncing", "Perimenopause", "Fertility", "PCOS"],
+        weight: ["Fat Loss", "Muscle Gain", "Body Recomp", "Metabolic Flex"],
+        performance: ["Functional Strength", "Athletic Peak", "Power", "Bodyweight"],
+        longevity: ["Bone Density", "Joint Health", "Postural Correction", "Heart Health"],
+        mental: ["Stress Management", "Sleep Quality", "Habit Formation", "Confidence"]
+    };
+
+    const translations = {
+        en: { title: "RINI", name: "Name", dob: "Date of Birth", age: "Age", h: "Height (cm)", w: "Weight (kg)", goal: "Primary Goal", sub: "Focus Area", btn: "हिन्दी" },
+        hi: { title: "रिनी", name: "नाम", dob: "जन्म तिथि", age: "आयु", h: "लंबाई (cm)", w: "वजन (kg)", goal: "मुख्य लक्ष्य", sub: "विशेष क्षेत्र", btn: "English" }
+    };
+
+    function toggleLang() {
+        currentLang = currentLang === 'en' ? 'hi' : 'en';
+        const t = translations[currentLang];
+        document.getElementById('title').innerText = t.title;
+        document.getElementById('lbl-name').innerText = t.name;
+        document.getElementById('lbl-dob').innerText = t.dob;
+        document.getElementById('lbl-age').innerText = t.age;
+        document.getElementById('lbl-height').innerText = t.h;
+        document.getElementById('lbl-weight').innerText = t.w;
+        document.getElementById('lbl-goal').innerText = t.goal;
+        document.getElementById('lbl-subgoal').innerText = t.sub;
+        document.getElementById('langBtn').innerText = t.btn;
+    }
+
+    function updateSubGoals() {
+        const main = document.getElementById('mainGoal').value;
+        const subSelect = document.getElementById('subGoal');
+        subSelect.innerHTML = "";
+        if(goals[main]) {
+            goals[main].forEach(g => {
+                let opt = document.createElement("option");
+                opt.value = g; opt.innerText = g;
+                subSelect.appendChild(opt);
+            });
+        }
+    }
+
+    function runAI() {
+        // Age Calc
+        const dob = document.getElementById('dob').value;
+        if(dob) {
+            const age = Math.floor((new Date() - new Date(dob)) / 31557600000);
+            document.getElementById('ageVal').innerText = age;
         }
 
-        // BMI Calculation
+        // BMI & Status
         const h = document.getElementById('height').value / 100;
         const w = document.getElementById('weight').value;
+        const resDiv = document.getElementById('statusResult');
+
         if(h > 0 && w > 0) {
-            const bmi = (w / (h * h)).toFixed(1);
-            document.getElementById('displayBMI').innerText = bmi;
+            const bmi = (w / (h*h)).toFixed(1);
+            let status = "";
+            let color = "";
+
+            if(bmi < 18.5) { status = "Underweight"; color = "#FFB74D"; }
+            else if(bmi < 23) { status = "Healthy Weight"; color = "#81C784"; }
+            else if(bmi < 27.5) { status = "Overweight"; color = "#FF8A65"; }
+            else { status = "Obese"; color = "#E57373"; }
+
+            resDiv.style.display = "block";
+            resDiv.style.backgroundColor = color;
+            resDiv.innerHTML = `BMI: ${bmi} <br> ${status}`;
         }
     }
 </script>
+
 <script>
-  if('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('sw.js')
-      .then(() => console.log("Rini is ready to work offline!"))
-      .catch((err) => console.log("Service worker not registered", err));
-  }
+    if('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js'); }
 </script>
+
 </body>
 </html>
