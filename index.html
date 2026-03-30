@@ -58,10 +58,12 @@
         <label id="lbl-subgoal">Focus Area</label>
         <select id="subGoal"></select>
     </div>
+    <button id="saveBtn" onclick="saveProfile()" style="width:100%; padding:15px; background: #F06292; color:white; border:none; border-radius:15px; font-weight:bold; margin-top:20px; cursor:pointer;">
+    Save Profile
+</button>
 </div>
 
-<script>
-    let currentLang = 'en';
+let currentLang = 'en';
     const goals = {
         hormonal: ["Cycle Syncing", "Perimenopause", "Fertility", "PCOS"],
         weight: ["Fat Loss", "Muscle Gain", "Body Recomp", "Metabolic Flex"],
@@ -71,9 +73,38 @@
     };
 
     const translations = {
-        en: { title: "RINI", name: "Name", dob: "Date of Birth", age: "Age", h: "Height (cm)", w: "Weight (kg)", goal: "Primary Goal", sub: "Focus Area", btn: "हिन्दी" },
-        hi: { title: "रिनी", name: "नाम", dob: "जन्म तिथि", age: "आयु", h: "लंबाई (cm)", w: "वजन (kg)", goal: "मुख्य लक्ष्य", sub: "विशेष क्षेत्र", btn: "English" }
+        en: { title: "RINI", name: "Name", dob: "Date of Birth", age: "Age", h: "Height (cm)", w: "Weight (kg)", goal: "Primary Goal", sub: "Focus Area", btn: "हिन्दी", save: "Save Profile" },
+        hi: { title: "रिनी", name: "नाम", dob: "जन्म तिथि", age: "आयु", h: "लंबाई (cm)", w: "वजन (kg)", goal: "मुख्य लक्ष्य", sub: "विशेष क्षेत्र", btn: "English", save: "प्रोफ़ाइल सहेजें" }
     };
+
+    // 1. LOAD DATA ON STARTUP
+    window.onload = function() {
+        const savedData = JSON.parse(localStorage.getItem('riniProfile'));
+        if (savedData) {
+            document.getElementById('userName').value = savedData.name || '';
+            document.getElementById('dob').value = savedData.dob || '';
+            document.getElementById('height').value = savedData.height || '';
+            document.getElementById('weight').value = savedData.weight || '';
+            document.getElementById('mainGoal').value = savedData.mainGoal || '';
+            updateSubGoals(); // Fill the second dropdown
+            document.getElementById('subGoal').value = savedData.subGoal || '';
+            runAI(); // Recalculate Age/BMI
+        }
+    };
+
+    // 2. SAVE DATA FUNCTION
+    function saveProfile() {
+        const profile = {
+            name: document.getElementById('userName').value,
+            dob: document.getElementById('dob').value,
+            height: document.getElementById('height').value,
+            weight: document.getElementById('weight').value,
+            mainGoal: document.getElementById('mainGoal').value,
+            subGoal: document.getElementById('subGoal').value
+        };
+        localStorage.setItem('riniProfile', JSON.stringify(profile));
+        alert(currentLang === 'en' ? "Profile Saved!" : "प्रोफ़ाइल सुरक्षित की गई!");
+    }
 
     function toggleLang() {
         currentLang = currentLang === 'en' ? 'hi' : 'en';
@@ -87,6 +118,7 @@
         document.getElementById('lbl-goal').innerText = t.goal;
         document.getElementById('lbl-subgoal').innerText = t.sub;
         document.getElementById('langBtn').innerText = t.btn;
+        document.getElementById('saveBtn').innerText = t.save;
     }
 
     function updateSubGoals() {
@@ -103,14 +135,12 @@
     }
 
     function runAI() {
-        // Age Calc
         const dob = document.getElementById('dob').value;
         if(dob) {
             const age = Math.floor((new Date() - new Date(dob)) / 31557600000);
             document.getElementById('ageVal').innerText = age;
         }
 
-        // BMI & Status
         const h = document.getElementById('height').value / 100;
         const w = document.getElementById('weight').value;
         const resDiv = document.getElementById('statusResult');
@@ -130,7 +160,6 @@
             resDiv.innerHTML = `BMI: ${bmi} <br> ${status}`;
         }
     }
-</script>
 
 <script>
     if('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js'); }
