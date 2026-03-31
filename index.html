@@ -6,17 +6,48 @@
     <title>Rini - Women's Health</title>
     <link rel="manifest" href="manifest.json">
     <style>
-        :root { --pink: #F06292; --soft-pink: #FFF5F7; --dark: #5D4037; }
-        body { background-color: var(--soft-pink); font-family: sans-serif; color: var(--dark); margin: 0; padding: 15px; display: flex; justify-content: center; }
-        .app { width: 100%; max-width: 450px; background: white; border-radius: 30px; padding: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); min-height: 95vh; }
-        h1 { color: var(--pink); text-align: center; letter-spacing: 3px; font-weight: 300; margin-top: 10px; }
-        .lang-btn { float: right; background: var(--pink); color: white; border: none; padding: 8px 15px; border-radius: 20px; cursor: pointer; font-weight: bold; }
-        .card { background: #fff; border: 1px solid #FCE4EC; border-radius: 20px; padding: 20px; margin-top: 15px; }
-        label { display: block; margin-top: 15px; font-weight: bold; font-size: 0.9em; }
-        input, select { width: 100%; padding: 12px; margin-top: 5px; border-radius: 12px; border: 1px solid #F8BBD0; box-sizing: border-box; background: var(--soft-pink); font-size: 16px; outline: none; }
-        .status-box { margin-top: 15px; padding: 15px; border-radius: 15px; text-align: center; font-weight: bold; color: white; }
-        #saveBtn { width: 100%; padding: 15px; background: var(--pink); color: white; border: none; border-radius: 15px; font-weight: bold; margin-top: 20px; cursor: pointer; font-size: 1.1em; transition: 0.3s; }
-        #saveBtn:active { transform: scale(0.98); background: #E91E63; }
+        :root { 
+    --pink: #F06292; 
+    --glass: rgba(255, 255, 255, 0.7); 
+    --glass-border: rgba(255, 255, 255, 0.3);
+}
+body { 
+    background: linear-gradient(135deg, #FFF5F7 0%, #FCE4EC 100%);
+    background-attachment: fixed;
+    font-family: 'Segoe UI', sans-serif;
+    margin: 0; padding: 15px;
+    display: flex; justify-content: center;
+}
+.app { 
+    width: 100%; max-width: 450px; 
+    background: var(--glass);
+    backdrop-filter: blur(10px); /* The Frosted Effect */
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid var(--glass-border);
+    border-radius: 30px; 
+    padding: 20px;
+    box-shadow: 0 8px 32px rgba(240, 98, 146, 0.15);
+}
+.card { 
+    background: rgba(255, 255, 255, 0.4);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px; 
+    padding: 15px; 
+    margin-top: 15px; 
+}
+/* Calendar Styling */
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 5px;
+    text-align: center;
+    margin-top: 10px;
+}
+.day { padding: 8px; border-radius: 8px; font-size: 0.8em; background: rgba(255,255,255,0.5); }
+.period { background: #FF80AB !important; color: white; }
+.fertile { background: #B2FF59 !important; }
+.peak { background: #76FF03 !important; font-weight: bold; }
+.unsafe { border: 2px solid #F06292; }
     </style>
 </head>
 <body>
@@ -25,143 +56,128 @@
     <button class="lang-btn" onclick="toggleLang()" id="langBtn">हिन्दी</button>
     <h1 id="title">RINI</h1>
 
-    <div class="card">
-        <label id="lbl-name">Name</label>
-        <input type="text" id="userName" placeholder="Enter Name">
+    <div style="text-align:right;">
+        <button onclick="toggleSettings()" style="background:none; border:none; font-size:1.5rem; cursor:pointer;">⚙️</button>
+    </div>
 
-        <label id="lbl-dob">Date of Birth</label>
-        <input type="date" id="dob" onchange="runAI()">
-
-        <div style="margin-top:10px;">
-            <span id="lbl-age">Age</span>: <span id="ageVal" style="font-weight:bold; color:var(--pink);">--</span>
+    <div id="settingsPanel" style="display:none;">
+        <div class="card">
+            <h3 id="lbl-profile">Profile Settings</h3>
+            <input type="text" id="userName" placeholder="Name">
+            <input type="date" id="dob" onchange="runAI()">
+            <input type="number" id="height" placeholder="Height (cm)" oninput="runAI()">
+            <input type="number" id="weight" placeholder="Weight (kg)" oninput="runAI()">
+            
+            <label>Select Goals:</label>
+            <div id="goalList" style="font-size: 0.9em;">
+                </div>
         </div>
 
-        <label id="lbl-height">Height (cm)</label>
-        <input type="number" id="height" placeholder="e.g. 160" oninput="runAI()">
-
-        <label id="lbl-weight">Weight (kg)</label>
-        <input type="number" id="weight" placeholder="e.g. 55" oninput="runAI()">
-
-        <div id="statusResult" class="status-box" style="display:none;"></div>
+        <div id="cycleSettings" class="card" style="display:none;">
+            <h3 id="lbl-cycle-set">Cycle Settings</h3>
+            <label>Last Period Start Date</label>
+            <input type="date" id="periodStart" onchange="renderCalendar()">
+            <label>Period Length (Days)</label>
+            <input type="number" id="pLength" value="5" oninput="renderCalendar()">
+            <label>Cycle Length (Days)</label>
+            <input type="number" id="cLength" value="28" oninput="renderCalendar()">
+        </div>
+        
+        <button id="saveBtn" onclick="saveProfile()">Save Profile</button>
     </div>
 
-    <div class="card">
-        <label id="lbl-goal">Primary Goal</label>
-        <select id="mainGoal" onchange="updateSubGoals()">
-            <option value="">-- Select --</option>
-            <option value="hormonal">Hormonal & Reproductive</option>
-            <option value="weight">Weight & Body Composition</option>
-            <option value="performance">Physical Performance</option>
-            <option value="longevity">Longevity & Health</option>
-            <option value="mental">Mental Wellness</option>
-        </select>
-
-        <label id="lbl-subgoal">Focus Area</label>
-        <select id="subGoal"></select>
+    <div id="dashboard">
+        <div class="card">
+            <h3 id="cal-title">Cycle Calendar</h3>
+            <div id="calendarMonth" style="font-weight:bold; color:var(--pink); margin-bottom:10px;"></div>
+            <div class="calendar-grid" id="calendarGrid">
+                </div>
+            <div style="margin-top:15px; font-size:0.7em; display:flex; gap:10px; flex-wrap:wrap;">
+                <span><span style="color:#FF80AB;">●</span> Period</span>
+                <span><span style="color:#76FF03;">●</span> Peak Fertile</span>
+                <span><span style="border:1px solid #F06292; padding:0 3px;">□</span> Unsafe</span>
+            </div>
+        </div>
     </div>
-
-    <button id="saveBtn" onclick="saveProfile()">Save Profile</button>
 </div>
 
 <script>
     let currentLang = 'en';
-    const goals = {
-        hormonal: ["Cycle Syncing", "Perimenopause", "Fertility", "PCOS"],
-        weight: ["Fat Loss", "Muscle Gain", "Body Recomp", "Metabolic Flex"],
-        performance: ["Functional Strength", "Athletic Peak", "Power", "Bodyweight"],
-        longevity: ["Bone Density", "Joint Health", "Postural Correction", "Heart Health"],
-        mental: ["Stress Management", "Sleep Quality", "Habit Formation", "Confidence"]
-    };
+    const allGoals = {
+    "Hormonal": ["Cycle Syncing", "Menopause", "Fertility", "PCOS"],
+    "Weight": ["Fat Loss", "Muscle Gain", "Body Recomp"],
+    "Performance": ["Strength", "Athletic Peak", "Power"]
+};
 
-    const translations = {
-        en: { title: "RINI", name: "Name", dob: "Date of Birth", age: "Age", h: "Height (cm)", w: "Weight (kg)", goal: "Primary Goal", sub: "Focus Area", btn: "हिन्दी", save: "Save Profile", saved: "Profile Saved!" },
-        hi: { title: "रिनी", name: "नाम", dob: "जन्म तिथि", age: "आयु", h: "लंबाई (cm)", w: "वजन (kg)", goal: "मुख्य लक्ष्य", sub: "विशेष क्षेत्र", btn: "English", save: "प्रोफ़ाइल सहेजें", saved: "प्रोफ़ाइल सुरक्षित की गई!" }
-    };
+// Toggle Settings View
+function toggleSettings() {
+    const panel = document.getElementById('settingsPanel');
+    panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+}
 
-    window.onload = function() {
-        const savedData = JSON.parse(localStorage.getItem('riniProfile'));
-        if (savedData) {
-            document.getElementById('userName').value = savedData.name || '';
-            document.getElementById('dob').value = savedData.dob || '';
-            document.getElementById('height').value = savedData.height || '';
-            document.getElementById('weight').value = savedData.weight || '';
-            document.getElementById('mainGoal').value = savedData.mainGoal || '';
-            updateSubGoals();
-            document.getElementById('subGoal').value = savedData.subGoal || '';
-            runAI();
-        }
-        if('serviceWorker' in navigator) { 
-            navigator.serviceWorker.register('sw.js').catch(err => console.log(err)); 
-        }
-    };
-
-    function saveProfile() {
-        const profile = {
-            name: document.getElementById('userName').value,
-            dob: document.getElementById('dob').value,
-            height: document.getElementById('height').value,
-            weight: document.getElementById('weight').value,
-            mainGoal: document.getElementById('mainGoal').value,
-            subGoal: document.getElementById('subGoal').value
-        };
-        localStorage.setItem('riniProfile', JSON.stringify(profile));
-        alert(translations[currentLang].saved);
+// Generate Checklist for Goals
+function initGoals() {
+    const container = document.getElementById('goalList');
+    for (let main in allGoals) {
+        container.innerHTML += `<b>${main}</b><br>`;
+        allGoals[main].forEach(sub => {
+            container.innerHTML += `
+                <label style="font-weight:normal;">
+                    <input type="checkbox" class="goal-check" value="${sub}" onchange="checkCycleVis()"> ${sub}
+                </label><br>`;
+        });
     }
+}
 
-    function toggleLang() {
-        currentLang = currentLang === 'en' ? 'hi' : 'en';
-        const t = translations[currentLang];
-        document.getElementById('title').innerText = t.title;
-        document.getElementById('lbl-name').innerText = t.name;
-        document.getElementById('lbl-dob').innerText = t.dob;
-        document.getElementById('lbl-age').innerText = t.age;
-        document.getElementById('lbl-height').innerText = t.h;
-        document.getElementById('lbl-weight').innerText = t.w;
-        document.getElementById('lbl-goal').innerText = t.goal;
-        document.getElementById('lbl-subgoal').innerText = t.sub;
-        document.getElementById('langBtn').innerText = t.btn;
-        document.getElementById('saveBtn').innerText = t.save;
+// Show/Hide Cycle Settings
+function checkCycleVis() {
+    const checks = document.querySelectorAll('.goal-check');
+    let show = false;
+    checks.forEach(c => { if(c.value === "Cycle Syncing" && c.checked) show = true; });
+    document.getElementById('cycleSettings').style.display = show ? 'block' : 'none';
+}
+
+function renderCalendar() {
+    const start = new Date(document.getElementById('periodStart').value);
+    const C = parseInt(document.getElementById('cLength').value);
+    const P = parseInt(document.getElementById('pLength').value);
+    const grid = document.getElementById('calendarGrid');
+    
+    if(!start.getTime()) return;
+
+    grid.innerHTML = "";
+    const month = start.getMonth();
+    const year = start.getFullYear();
+    document.getElementById('calendarMonth').innerText = start.toLocaleString('default', { month: 'long', year: 'numeric' });
+
+    // Core Milestone: Ovulation (O = S + C - 14)
+    const O = new Date(start); O.setDate(start.getDate() + C - 14);
+    
+    // Logic Loop for 31 days
+    for(let i=0; i<31; i++) {
+        let current = new Date(start);
+        current.setDate(start.getDate() - 5 + i); // Show window around period
+        
+        let dayDiv = document.createElement('div');
+        dayDiv.className = 'day';
+        dayDiv.innerText = current.getDate();
+
+        // Formula Checks
+        const diff = (current - start) / (1000*60*60*24);
+        
+        if(diff >= 0 && diff < P) dayDiv.classList.add('period');
+        if(diff >= (C - 19) && diff <= (C - 13)) dayDiv.classList.add('unsafe');
+        if(diff >= (C - 16) && diff <= (C - 14)) dayDiv.classList.add('peak');
+
+        grid.appendChild(dayDiv);
     }
+}
 
-    function updateSubGoals() {
-        const main = document.getElementById('mainGoal').value;
-        const subSelect = document.getElementById('subGoal');
-        subSelect.innerHTML = "";
-        if(goals[main]) {
-            goals[main].forEach(g => {
-                let opt = document.createElement("option");
-                opt.value = g; opt.innerText = g;
-                subSelect.appendChild(opt);
-            });
-        }
-    }
-
-    function runAI() {
-        const dob = document.getElementById('dob').value;
-        if(dob) {
-            const age = Math.floor((new Date() - new Date(dob)) / 31557600000);
-            document.getElementById('ageVal').innerText = isNaN(age) ? "--" : age;
-        }
-
-        const h = document.getElementById('height').value / 100;
-        const w = document.getElementById('weight').value;
-        const resDiv = document.getElementById('statusResult');
-
-        if(h > 0 && w > 0) {
-            const bmi = (w / (h*h)).toFixed(1);
-            let status = "";
-            let color = "";
-
-            if(bmi < 18.5) { status = "Underweight"; color = "#FFB74D"; }
-            else if(bmi < 23) { status = "Healthy Weight"; color = "#81C784"; }
-            else if(bmi < 27.5) { status = "Overweight"; color = "#FF8A65"; }
-            else { status = "Obese"; color = "#E57373"; }
-
-            resDiv.style.display = "block";
-            resDiv.style.backgroundColor = color;
-            resDiv.innerHTML = `BMI: ${bmi} <br> ${status}`;
-        }
-    }
+// Call init on load
+window.onload = function() {
+    initGoals();
+    // (Add your existing localStorage load logic here)
+};
 </script>
 
 </body>
