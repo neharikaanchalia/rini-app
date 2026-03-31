@@ -17,6 +17,7 @@
             font-family: 'Segoe UI', sans-serif;
             margin: 0; padding: 15px;
             display: flex; justify-content: center;
+            align-items: flex-start; /* Keeps it at the top */
         }
         .app { 
             width: 100%; max-width: 450px; 
@@ -29,50 +30,60 @@
             box-shadow: 0 8px 32px rgba(240, 98, 146, 0.15);
             min-height: 90vh;
         }
-        .lang-btn { float: right; background: var(--pink); color: white; border: none; padding: 8px 15px; border-radius: 20px; cursor: pointer; font-weight: bold; }
-        .card { background: rgba(255, 255, 255, 0.4); border: 1px solid var(--glass-border); border-radius: 20px; padding: 15px; margin-top: 15px; }
-        h1 { color: var(--pink); text-align: center; letter-spacing: 3px; font-weight: 300; margin: 10px 0; }
-        input, select { width: 100%; padding: 12px; margin-top: 8px; border-radius: 12px; border: 1px solid #F8BBD0; box-sizing: border-box; background: rgba(255,255,255,0.5); font-size: 16px; }
+        
+        /* New Native-looking Header */
+        .header-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        h1 { color: var(--pink); letter-spacing: 3px; font-weight: 300; margin: 0; }
+        .lang-btn { background: var(--pink); color: white; border: none; padding: 6px 12px; border-radius: 20px; cursor: pointer; font-weight: bold; font-size: 0.85em; }
+        .settings-btn { background: none; border: none; font-size: 1.8rem; cursor: pointer; color: var(--dark); padding: 0; }
+        
+        .card { background: rgba(255, 255, 255, 0.6); border: 1px solid var(--glass-border); border-radius: 20px; padding: 15px; margin-top: 15px; }
+        input, select { width: 100%; padding: 12px; margin-top: 8px; border-radius: 12px; border: 1px solid #F8BBD0; box-sizing: border-box; background: rgba(255,255,255,0.7); font-size: 16px; outline: none; }
         .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; text-align: center; margin-top: 10px; }
         .day { padding: 8px; border-radius: 8px; font-size: 0.8em; background: rgba(255,255,255,0.5); }
-        .period { background: #FF80AB !important; color: white; }
-        .peak { background: #76FF03 !important; font-weight: bold; }
+        .period { background: #FF80AB !important; color: white; font-weight: bold; }
+        .peak { background: #76FF03 !important; font-weight: bold; color: #33691E; }
         .unsafe { border: 2px solid #F06292; }
-        #saveBtn { width: 100%; padding: 15px; background: var(--pink); color: white; border: none; border-radius: 15px; font-weight: bold; margin-top: 20px; cursor: pointer; }
+        #saveBtn { width: 100%; padding: 15px; background: var(--pink); color: white; border: none; border-radius: 15px; font-weight: bold; margin-top: 20px; cursor: pointer; font-size: 1.1em; transition: 0.2s; }
+        #saveBtn:active { transform: scale(0.98); }
         .status-box { margin-top: 10px; padding: 10px; border-radius: 10px; text-align: center; font-weight: bold; color: white; }
     </style>
 </head>
 <body>
 
 <div class="app">
-    <button class="lang-btn" onclick="toggleLang()" id="langBtn">हिन्दी</button>
-    <h1 id="title">RINI</h1>
-
-    <div style="text-align:right;">
-        <button onclick="toggleSettings()" style="background:none; border:none; font-size:1.5rem; cursor:pointer;">⚙️ Settings</button>
+    <div class="header-bar">
+        <button class="lang-btn" onclick="toggleLang()" id="langBtn">हिन्दी</button>
+        <h1 id="title">RINI</h1>
+        <button class="settings-btn" onclick="toggleSettings()">⚙️</button>
     </div>
 
     <div id="settingsPanel" style="display:none;">
         <div class="card">
-            <h3 id="lbl-profile">Profile</h3>
+            <h3 id="lbl-profile" style="margin-top:0;">Profile</h3>
             <input type="text" id="userName" placeholder="Name">
             <input type="date" id="dob" onchange="runAI()">
-            <div style="margin: 10px 0;"><span id="lbl-age">Age</span>: <span id="ageVal">--</span></div>
+            <div style="margin: 10px 0; font-size: 0.9em;"><span id="lbl-age">Age</span>: <span id="ageVal" style="font-weight:bold; color:var(--pink);">--</span></div>
             <input type="number" id="height" placeholder="Height (cm)" oninput="runAI()">
             <input type="number" id="weight" placeholder="Weight (kg)" oninput="runAI()">
             <div id="statusResult" class="status-box" style="display:none;"></div>
             
-            <label style="display:block; margin-top:15px; font-weight:bold;">Goals:</label>
+            <label style="display:block; margin-top:15px; font-weight:bold; font-size: 0.9em;">Goals:</label>
             <div id="goalList" style="font-size: 0.9em; margin-top:10px;"></div>
         </div>
 
         <div id="cycleSettings" class="card" style="display:none;">
-            <h3 id="lbl-cycle-set">Cycle Settings</h3>
-            <label>Last Period Start</label>
+            <h3 id="lbl-cycle-set" style="margin-top:0;">Cycle Settings</h3>
+            <label style="font-size: 0.9em;">Last Period Start</label>
             <input type="date" id="periodStart" onchange="renderCalendar()">
-            <label>Period Length (Days)</label>
+            <label style="font-size: 0.9em; display:block; margin-top:10px;">Period Length (Days)</label>
             <input type="number" id="pLength" value="5" oninput="renderCalendar()">
-            <label>Cycle Length (Days)</label>
+            <label style="font-size: 0.9em; display:block; margin-top:10px;">Cycle Length (Days)</label>
             <input type="number" id="cLength" value="28" oninput="renderCalendar()">
         </div>
         
@@ -81,10 +92,11 @@
 
     <div id="dashboard">
         <div class="card">
-            <h3 id="cal-title">Cycle Calendar</h3>
-            <div id="calendarMonth" style="font-weight:bold; color:var(--pink); margin-bottom:10px;"></div>
+            <h3 id="cal-title" style="margin-top:0;">Cycle Calendar</h3>
+            <div id="calendarMonth" style="font-weight:bold; color:var(--pink); margin-bottom:10px; font-size: 0.9em;"></div>
             <div class="calendar-grid" id="calendarGrid"></div>
-            <div style="margin-top:15px; font-size:0.7em; display:flex; gap:10px; flex-wrap:wrap;">
+            
+            <div style="margin-top:20px; font-size:0.75em; display:flex; gap:10px; flex-wrap:wrap; justify-content: center;">
                 <span><span style="color:#FF80AB;">●</span> Period</span>
                 <span><span style="color:#76FF03;">●</span> Peak Fertile</span>
                 <span><span style="border:1px solid #F06292; padding:0 3px;">□</span> Unsafe Window</span>
@@ -102,8 +114,8 @@
     };
 
     const translations = {
-        en: { title: "RINI", age: "Age", btn: "हिन्दी", save: "Save Profile", profile: "Profile Settings", cycle: "Cycle Settings" },
-        hi: { title: "रिनी", age: "आयु", btn: "English", save: "सहेजें", profile: "प्रोफ़ाइल सेटिंग", cycle: "चक्र सेटिंग" }
+        en: { title: "RINI", age: "Age", btn: "हिन्दी", save: "Save Profile", profile: "Profile Settings", cycle: "Cycle Settings", calTitle: "Cycle Calendar" },
+        hi: { title: "रिनी", age: "आयु", btn: "English", save: "सहेजें", profile: "प्रोफ़ाइल सेटिंग", cycle: "चक्र सेटिंग", calTitle: "मासिक धर्म कैलेंडर" }
     };
 
     function toggleSettings() {
@@ -115,13 +127,14 @@
         const container = document.getElementById('goalList');
         container.innerHTML = "";
         for (let main in allGoals) {
-            container.innerHTML += `<b>${main}</b><br>`;
+            container.innerHTML += `<b style="color:var(--pink);">${main}</b><br>`;
             allGoals[main].forEach(sub => {
                 container.innerHTML += `
                     <label style="font-weight:normal; display:block; margin: 5px 0;">
                         <input type="checkbox" class="goal-check" value="${sub}" onchange="checkCycleVis()"> ${sub}
                     </label>`;
             });
+            container.innerHTML += `<br>`;
         }
     }
 
@@ -134,14 +147,27 @@
 
     function renderCalendar() {
         const startInput = document.getElementById('periodStart').value;
-        if(!startInput) return;
+        const grid = document.getElementById('calendarGrid');
+        grid.innerHTML = "";
+
+        // If no date is set, show empty placeholder boxes
+        if(!startInput) {
+            document.getElementById('calendarMonth').innerText = "Select a start date in Settings ⚙️";
+            for(let i=0; i<35; i++) {
+                let dayDiv = document.createElement('div');
+                dayDiv.className = 'day';
+                dayDiv.style.color = 'rgba(0,0,0,0.2)';
+                dayDiv.innerText = "-";
+                grid.appendChild(dayDiv);
+            }
+            return;
+        }
+
         const start = new Date(startInput);
         const C = parseInt(document.getElementById('cLength').value) || 28;
         const P = parseInt(document.getElementById('pLength').value) || 5;
-        const grid = document.getElementById('calendarGrid');
         
-        grid.innerHTML = "";
-        document.getElementById('calendarMonth').innerText = start.toLocaleString('default', { month: 'long' });
+        document.getElementById('calendarMonth').innerText = start.toLocaleString('default', { month: 'long', year: 'numeric' });
 
         for(let i=0; i<35; i++) {
             let current = new Date(start);
@@ -191,14 +217,19 @@
             cLen: document.getElementById('cLength').value
         };
         localStorage.setItem('riniProfile', JSON.stringify(profile));
-        alert("Saved!");
+        
+        // Hide settings and show calendar
         toggleSettings();
+        
+        // Update user visually
+        alert("Saved successfully! Let's update your dashboard.");
     }
 
     function toggleLang() {
         currentLang = currentLang === 'en' ? 'hi' : 'en';
         document.getElementById('langBtn').innerText = translations[currentLang].btn;
         document.getElementById('title').innerText = translations[currentLang].title;
+        document.getElementById('cal-title').innerText = translations[currentLang].calTitle;
     }
 
     window.onload = function() {
@@ -214,90 +245,20 @@
             document.getElementById('cLength').value = saved.cLen || 28;
             
             const checks = document.querySelectorAll('.goal-check');
-            checks.forEach(c => { if(saved.goals.includes(c.value)) c.checked = true; });
+            if(saved.goals) {
+                checks.forEach(c => { if(saved.goals.includes(c.value)) c.checked = true; });
+            }
             
             checkCycleVis();
             runAI();
-            renderCalendar();
         }
+        
+        // Always render calendar on load (will show empty if no date)
+        renderCalendar();
+        
         if('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js'); }
     };
 </script>
 
 </body>
 </html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rini - Women's Health</title>
-    <link rel="manifest" href="manifest.json">
-    <style>
-        :root { 
-            --pink: #F06292; 
-            --glass: rgba(255, 255, 255, 0.7); 
-            --glass-border: rgba(255, 255, 255, 0.3);
-        }
-        body { 
-            background: linear-gradient(135deg, #FFF5F7 0%, #FCE4EC 100%);
-            background-attachment: fixed;
-            font-family: 'Segoe UI', sans-serif;
-            margin: 0; padding: 15px;
-            display: flex; justify-content: center;
-        }
-        .app { 
-            width: 100%; max-width: 450px; 
-            background: var(--glass);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border: 1px solid var(--glass-border);
-            border-radius: 30px; 
-            padding: 20px;
-            box-shadow: 0 8px 32px rgba(240, 98, 146, 0.15);
-            min-height: 90vh;
-        }
-        .lang-btn { float: right; background: var(--pink); color: white; border: none; padding: 8px 15px; border-radius: 20px; cursor: pointer; font-weight: bold; }
-        .card { background: rgba(255, 255, 255, 0.4); border: 1px solid var(--glass-border); border-radius: 20px; padding: 15px; margin-top: 15px; }
-        h1 { color: var(--pink); text-align: center; letter-spacing: 3px; font-weight: 300; margin: 10px 0; }
-        input, select { width: 100%; padding: 12px; margin-top: 8px; border-radius: 12px; border: 1px solid #F8BBD0; box-sizing: border-box; background: rgba(255,255,255,0.5); font-size: 16px; }
-        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; text-align: center; margin-top: 10px; }
-        .day { padding: 8px; border-radius: 8px; font-size: 0.8em; background: rgba(255,255,255,0.5); }
-        .period { background: #FF80AB !important; color: white; }
-        .peak { background: #76FF03 !important; font-weight: bold; }
-        .unsafe { border: 2px solid #F06292; }
-        #saveBtn { width: 100%; padding: 15px; background: var(--pink); color: white; border: none; border-radius: 15px; font-weight: bold; margin-top: 20px; cursor: pointer; }
-        .status-box { margin-top: 10px; padding: 10px; border-radius: 10px; text-align: center; font-weight: bold; color: white; }
-    </style>
-</head>
-<body>
-
-<div class="app">
-    <button class="lang-btn" onclick="toggleLang()" id="langBtn">हिन्दी</button>
-    <h1 id="title">RINI</h1>
-
-    <div style="text-align:right;">
-        <button onclick="toggleSettings()" style="background:none; border:none; font-size:1.5rem; cursor:pointer;">⚙️ Settings</button>
-    </div>
-
-    <div id="settingsPanel" style="display:none;">
-        <div class="card">
-            <h3 id="lbl-profile">Profile</h3>
-            <input type="text" id="userName" placeholder="Name">
-            <input type="date" id="dob" onchange="runAI()">
-            <div style="margin: 10px 0;"><span id="lbl-age">Age</span>: <span id="ageVal">--</span></div>
-            <input type="number" id="height" placeholder="Height (cm)" oninput="runAI()">
-            <input type="number" id="weight" placeholder="Weight (kg)" oninput="runAI()">
-            <div id="statusResult" class="status-box" style="display:none;"></div>
-            
-            <label style="display:block; margin-top:15px; font-weight:bold;">Goals:</label>
-            <div id="goalList" style="font-size: 0.9em; margin-top:10px;"></div>
-        </div>
-
-        <div id="cycleSettings" class="card" style="display:none;">
-            <h3 id="lbl-cycle-set">Cycle Settings</h3>
-            <label>Last Period Start</label>
-            <input type="date" id="periodStart" onchange="renderCalendar()">
-            <label>Period Length (Days)</label>
-            <input type="number" id="pLength" value="5" oninput="renderCalendar()">
-            <label>Cycle Length (Days)</label>
-            <input type="number" id="cLength" value="28" oninput="renderCalendar()">
